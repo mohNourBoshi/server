@@ -1,0 +1,26 @@
+# Virtual environment
+venv/
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Python cache files
+*.pyc
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Flask-related files
+instance/
+*.pyc
+
+# Docker-related files
+Dockerfile
+docker-compose.yml
+
+# Local development files
+*.sqlite
