@@ -6,6 +6,8 @@ import numpy as np
 # import os
 from sklearn.cluster import MiniBatchKMeans
 import requests
+import asyncio
+import aiohttp
 
 app = Flask(__name__)
 
@@ -208,12 +210,7 @@ def image_to_base64(image):
             print("Error: Unable to load the image.")
             return None
 
-
-
-
-
-
-def sendToSolver(base64):
+async def sendToSolver(base64):
     # Define the endpoint URL
     url = "https://api.capsolver.com/createTask"
 
@@ -234,28 +231,24 @@ def sendToSolver(base64):
         "Host": "api.capsolver.com",
         "Content-Type": "application/json"
     }
-
-    # Send the POST request
-    response = requests.post(url, json=json_data,headers=headers)
-
-    # Check if the request was successful
-    if response.status_code == 200:
-        print("Request was successful!")
-        print("Response:")
-        print(response.json())
-        return response.json()
-    else:
-        print("Error:", response.status_code)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=json_data, headers=headers) as response:
+            if response.status == 200:
+                print("Request was successful!")
+                return await response.json()
+            else:
+                print("Error:", response.status)
 
 
-
+# //////////////////////////////////////
+# //////////////////////////////////////
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # functions ends 
     
 
 @app.route('/123')
-def say_hi():
+async def say_hi():
     
     image = cv2.imread('./8+1.jpg')
     final=imagePreProcess('Original.png',image)
@@ -268,18 +261,18 @@ def say_hi():
         tribleImages.append(
             concatenate_three_images(image, filename)
         )
-    solve=[]
+    solve = []
+    tasks = []
+
     for i, image in enumerate(tribleImages):
         base64 =image_to_base64(image)
         # print(base64)
-        result =sendToSolver(base64)
-        solve.append(result)
-        print(solve)
-
-        
+        task = asyncio.create_task(sendToSolver(base64))
+        tasks.append(task)
+        print(task)
     
-    
-    
+    solve = await asyncio.gather(*tasks)
+    print(solve)
 
     return solve
 
