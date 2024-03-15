@@ -78,7 +78,7 @@ def imagePreProcess(theOriginalPath,image):
     # Combine the two results to get the final image
     final = cv2.addWeighted(res1, 1, res2, 1, 0)
 
-    cv2.imwrite('AAAAAAAAAAAAAfinal_output_path.jpg', final)    
+    # cv2.imwrite('AAAAAAAAAAAAAfinal_output_path.jpg', final)    
     image_path ='AAAAAAAAAAAAAfinal_output_path.jpg'
     return final
 def get_top_colors(image, top_colors=3, resize_factor=0.3):
@@ -155,7 +155,7 @@ def create_color_masked_images(image, colors):
             theOneImage= cv2.cvtColor(color_masked_image, cv2.COLOR_RGB2BGR)
             # gray_image = cv2.cvtColor(theOneImage, cv2.COLOR_RGB2GRAY)
 
-            cv2.imwrite(f'aaa{i}.jpg',theOneImage)
+            # cv2.imwrite(f'aaa{i}.jpg',theOneImage)
             images.append(theOneImage)
             # images.append(gray_image)
 
@@ -183,7 +183,7 @@ def concatenate_three_images(image, output_path):
         combined_img = np.concatenate([image, image, image], axis=1)
 
         # Save the result
-        cv2.imwrite(output_path, combined_img)
+        # cv2.imwrite(output_path, combined_img)
         return combined_img
     else :
         return 
