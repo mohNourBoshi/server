@@ -11,6 +11,20 @@ import aiohttp
 
 app = Flask(__name__)
 
+
+image_000 = cv2.imread('./original/000.png')
+image_425 = cv2.imread('./original/425.png')
+image_bb = cv2.imread('./original/bb.png')
+image_bw = cv2.imread('./original/bw.png')
+image_ww = cv2.imread('./original/ww.png')
+image_wb = cv2.imread('./original/wb.png')
+image_c = cv2.imread('./original/c.png')
+image_e = cv2.imread('./original/e.png')
+image_f = cv2.imread('./original/f.png')
+image_t = cv2.imread('./original/t.png')
+image_x = cv2.imread('./original/x.png')
+image_z = cv2.imread('./original/z.png')
+
 # functions starts
 
 def create_disk_kernel(radius):
@@ -27,9 +41,10 @@ def create_disk_kernel(radius):
     return disk_matrix.astype(np.uint8)
 
 
-def imagePreProcess(theOriginalPath,image):
+def imagePreProcess(theOriginalImage,image):
 
-    image_o = cv2.imread(theOriginalPath)
+    # image_o = cv2.imread(theOriginalPath)
+    image_o = theOriginalImage
     image_path ='./light/1+8.jpg'
     # image_e = cv2.imread(image_path)
     image_e = image
@@ -103,7 +118,7 @@ def get_top_colors(image, top_colors=3, resize_factor=0.3):
 
         # Convert the colors to integers
         colors_in_img = colors_in_img.round(0).astype(int)
-        print(colors_in_img)
+        # print(colors_in_img)
 
         # Remove colors similar to black or less than [10, 10, 10]
         colors_in_img = [color for color in colors_in_img if not np.all(color <= 10)]
@@ -239,45 +254,178 @@ async def sendToSolver(base64):
             else:
                 print("Error:", response.status)
 
+def compare_first_row(original_image, modified_image):
+    original_first_row = original_image[0:1, :100]
+    modified_first_row = modified_image[0:1, :100]
+    # Calculate similarity metric (e.g., mean squared error)
+    similarity_score = cv2.matchTemplate(original_first_row, modified_first_row, cv2.TM_SQDIFF)
+    return similarity_score
+
+def find_matching_background(modified_image, original_captchas):
+    best_match_index = None
+    best_match = None
+    min_score = float('inf')
+    for i, original_captcha in enumerate(original_captchas):
+        similarity_score = compare_first_row(original_captcha, modified_image)
+        if similarity_score < min_score:
+            min_score = similarity_score
+            best_match_index = i
+            best_match = original_captcha
+    return best_match_index, best_match
+
+def sortTheArrayOfTheImage(arr):
+    unsortedarray=[]
+    for image in arr:
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        _, thresholded_image = cv2.threshold(gray_image, 10, 255, cv2.THRESH_BINARY)
+        contours, _ = cv2.findContours(thresholded_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contoursAreas =[]
+        for contour in contours:
+            rect = cv2.minAreaRect(contour)
+            ((x1,y1),(x2,y2),teta)=rect
+            area = x2*y2
+            contoursAreas.append([area,x1])
+        max_area = 0
+        max_x = 0
+        for area, x in contoursAreas:
+            if area > max_area:
+                max_area = area
+                max_x = x
+        unsortedarray.append([image,max_x])
+    sorted_contoursAreas = sorted(unsortedarray, key=lambda x: x[1], reverse=False)
+    # Return all images from the sorted list
+    return [item[0] for item in sorted_contoursAreas]
+
+
+def solvethesign(image):
+    # image = cv2.imread(image_path)
+
+
+    # Convert the image to grayscale
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Apply a threshold to convert pixels with values less than (10, 10, 10) to black
+    _, thresholded_image = cv2.threshold(gray_image, 10, 255, cv2.THRESH_BINARY)
+    # Find contours in the thresholded image
+    contours, _ = cv2.findContours(thresholded_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # print(len(contours))
+    contoursAreas =[]
+    # Draw minimum area rotated bounding boxes around the contours
+    for contour in contours:
+        # Calculate the minimum area bounding rectangle
+        rect = cv2.minAreaRect(contour)
+        # print(rect)
+        ((x1,y1),(x2,y2),teta)=rect
+        area = x2*y2
+        contoursAreas.append(area)
+
+        # Get the rotation angle from the rectangle
+        angle = rect[2]
+
+        # Limit the angle of rotation to the range -15 to +15 degrees
+        if angle > 17:
+            angle -= 90
+        elif angle < -17:
+            angle += 90
+        # if -18 <= angle <= 18:
+        #     print("hi *-*-*-*-*-*-*-*-*-")
+        if -62 <= angle <= -28 or 28 <= angle <= 62:
+            # print("hi ++++++++++++++++++")
+            return '+'
+
+        # # Rotate the image
+        # rows, cols = image.shape[:2]
+        # rotation_matrix = cv2.getRotationMatrix2D(rect[0], 0, 1)
+        # rotated_image = cv2.warpAffine(image, rotation_matrix, (cols, rows))
+
+        # # Rotate the contour points
+        # contour_rotated = cv2.boxPoints(rect)
+        # contour_rotated = np.intp(contour_rotated)
+        # contour_rotated = cv2.transform(np.array([contour_rotated]), rotation_matrix)[0]
+
+        # # Draw the rotated contour
+        # cv2.drawContours(rotated_image, [contour_rotated], 0, (0, 255, 0), 2)
+    
+    if len(contoursAreas):
+        mx=max(contoursAreas)
+        if mx <8000 :
+            return '-'
+        else :
+            return 'x'
+    
+    print("we  could not find the math operation im sorry ")
+
+    
+    return '-'
 
 # //////////////////////////////////////
 # //////////////////////////////////////
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # functions ends 
-    
+# Load the modified captcha image
+modified_captcha = cv2.imread('all/13.jpg')
 
+original_captchas = []
+for i in range(1, 14):
+    original_captcha = cv2.imread(f'originall/o{i}.png')
+    original_captchas.append(original_captcha)
+    
+sign=''
 @app.route('/123')
 async def say_hi():
     
-    image = cv2.imread('./8+1.jpg')
-    final=imagePreProcess('Original.png',image)
+    image = cv2.imread('./all/12.jpg')
+    modified_captcha =image
+    # Find the matching background
+    best_match_index, matching_background = find_matching_background(modified_captcha, original_captchas)
+    # print(f"The best matching background image is original{best_match_index+1}.png")
+    # best_match_filename = f'originall/o{best_match_index + 1}.png'
+
+    final=imagePreProcess(matching_background,image)
     colors = get_top_colors(final, top_colors=5)
-    print(colors)
+    # print(colors)
     arrayOfImages=create_color_masked_images(final, colors)
+    arrayOfImages=sortTheArrayOfTheImage(arrayOfImages)
+    if len(arrayOfImages)==0:
+        return"errorr zero charecter"
+    if len(arrayOfImages)==1:
+        return"errorr one charecter"
+    if len(arrayOfImages)==2:
+        sign='-'
+
     tribleImages =[]
     for i, image in enumerate(arrayOfImages):
         filename = f'aaaa{i + 1}.jpg'  # Generate filename dynamically
         tribleImages.append(
             concatenate_three_images(image, filename)
         )
+    first_item = tribleImages[0]
+    last_item = tribleImages[-1]
+    combined_img = np.concatenate([first_item, last_item], axis=1)
+
+
     solve = []
     tasks = []
 
-    for i, image in enumerate(tribleImages):
-        base64 =image_to_base64(image)
-        # print(base64)
-        task = asyncio.create_task(sendToSolver(base64))
-        tasks.append(task)
-        print(task)
-    
+    base64 =image_to_base64(combined_img)
+    # print(base64)
+    task = asyncio.create_task(sendToSolver(base64))
+    tasks.append(task)
+    # print(task)
+    sign=''
+    if len(arrayOfImages)>=3:
+        arrayOfImages[1]
+        sign=solvethesign(arrayOfImages[1])
+
     solve = await asyncio.gather(*tasks)
-    print(solve)
+    solve.append(sign)
+    
+    # print(solve)
 
     return solve
 
 @app.route('/image' ,methods=['POST'])
-def recive_theImage():
+async def recive_theImage():
     try:
         json_data = request.get_json()
 

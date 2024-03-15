@@ -16,7 +16,6 @@ __pycache__/
 
 # Flask-related files
 instance/
-light/*
 *.pyc
 
 # Docker-related files
@@ -25,3 +24,13 @@ docker-compose.yml
 
 # Local development files
 *.sqlite
+
+light/*
+-/*
++/*
+x/*
+-/
++/
+x/
+arch/
+original/
