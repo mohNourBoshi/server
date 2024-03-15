@@ -219,6 +219,7 @@ def sendToSolver(base64):
 
     # Define the API key
     # api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
+    api_key = "CAP-1023B2D2D2"
 
     # Define the JSON data to be sent in the request
     json_data = {
