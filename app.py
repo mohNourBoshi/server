@@ -253,10 +253,10 @@ def sendToSolver(base64):
 # functions ends 
     
 
-@app.route('/')
+@app.route('/123')
 def say_hi():
     
-    image = cv2.imread('./light/1-0.jpg')
+    image = cv2.imread('./8+1.jpg')
     final=imagePreProcess('Original.png',image)
     colors = get_top_colors(final, top_colors=5)
     print(colors)
