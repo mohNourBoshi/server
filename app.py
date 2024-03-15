@@ -12,18 +12,18 @@ import aiohttp
 app = Flask(__name__)
 
 
-image_000 = cv2.imread('./original/000.png')
-image_425 = cv2.imread('./original/425.png')
-image_bb = cv2.imread('./original/bb.png')
-image_bw = cv2.imread('./original/bw.png')
-image_ww = cv2.imread('./original/ww.png')
-image_wb = cv2.imread('./original/wb.png')
-image_c = cv2.imread('./original/c.png')
-image_e = cv2.imread('./original/e.png')
-image_f = cv2.imread('./original/f.png')
-image_t = cv2.imread('./original/t.png')
-image_x = cv2.imread('./original/x.png')
-image_z = cv2.imread('./original/z.png')
+# image_000 = cv2.imread('./original/000.png')
+# image_425 = cv2.imread('./original/425.png')
+# image_bb = cv2.imread('./original/bb.png')
+# image_bw = cv2.imread('./original/bw.png')
+# image_ww = cv2.imread('./original/ww.png')
+# image_wb = cv2.imread('./original/wb.png')
+# image_c = cv2.imread('./original/c.png')
+# image_e = cv2.imread('./original/e.png')
+# image_f = cv2.imread('./original/f.png')
+# image_t = cv2.imread('./original/t.png')
+# image_x = cv2.imread('./original/x.png')
+# image_z = cv2.imread('./original/z.png')
 
 # functions starts
 
@@ -225,13 +225,13 @@ def image_to_base64(image):
             print("Error: Unable to load the image.")
             return None
 
-async def sendToSolver(base64):
+async def sendToSolver(base64data):
     # Define the endpoint URL
     url = "https://api.capsolver.com/createTask"
 
     # Define the API key
-    # api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
-    api_key = "CAP-1023B2D2D2"
+    api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
+    # api_key = "CAP-1023B2D2D2"
 
     # Define the JSON data to be sent in the request
     json_data = {
@@ -239,7 +239,7 @@ async def sendToSolver(base64):
         "task": {
             "type": "ImageToTextTask",
             "module": "common",
-            "body": base64 # Base64 encoded image data
+            "body": base64data # Base64 encoded image data
         }
     }
     headers = {
@@ -407,9 +407,9 @@ async def say_hi():
     solve = []
     tasks = []
 
-    base64 =image_to_base64(combined_img)
+    base64Data =image_to_base64(combined_img)
     # print(base64)
-    task = asyncio.create_task(sendToSolver(base64))
+    task = asyncio.create_task(sendToSolver(base64Data))
     tasks.append(task)
     # print(task)
     sign=''
@@ -424,6 +424,8 @@ async def say_hi():
 
     return solve
 
+image = cv2.imread('./all/12.jpg')
+prefix = 'data:image/jpeg;base64,'
 @app.route('/image' ,methods=['POST'])
 async def recive_theImage():
     try:
@@ -431,14 +433,61 @@ async def recive_theImage():
 
         if 'base64_image' in json_data:
             base64_image = json_data['base64_image']
+            if base64_image.startswith(prefix):
+                base64_image = base64_image[len(prefix):]
  
             # Decode the base64 image
-            # image_data = base64.b64decode(base64_image)
+            image_data = base64.b64decode(base64_image)
+            np_array = np.frombuffer(image_data, np.uint8)
+            # cv2.imwrite("loo.jpg",image_data)
+            image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+            cv2.imwrite('45.png',image)
+                        
+            modified_captcha =image
+            # Find the matching background
+            best_match_index, matching_background = find_matching_background(modified_captcha, original_captchas)
+            # print(f"The best matching background image is original{best_match_index+1}.png")
+            # best_match_filename = f'originall/o{best_match_index + 1}.png'
 
-            # # Here you can process the image data as needed
-            # For example, you can save it to a file, perform image processing, etc.
+            final=imagePreProcess(matching_background,image)
+            colors = get_top_colors(final, top_colors=5)
+            # print(colors)
+            arrayOfImages=create_color_masked_images(final, colors)
+            arrayOfImages=sortTheArrayOfTheImage(arrayOfImages)
+            if len(arrayOfImages)==0:
+                return"errorr zero charecter"
+            if len(arrayOfImages)==1:
+                return"errorr one charecter"
+            if len(arrayOfImages)==2:
+                sign='-'
 
-            return 'Image uploaded and processed successfully'
+            tribleImages =[]
+            for i, image in enumerate(arrayOfImages):
+                filename = f'aaaa{i + 1}.jpg'  # Generate filename dynamically
+                tribleImages.append(
+                    concatenate_three_images(image, filename)
+                )
+            first_item = tribleImages[0]
+            last_item = tribleImages[-1]
+            combined_img = np.concatenate([first_item, last_item], axis=1)
+
+
+            solve = []
+            tasks = []
+            base64Data =image_to_base64(combined_img)
+            # print(base64)
+            task = asyncio.create_task(sendToSolver(base64Data))
+            tasks.append(task)
+            # print(task)
+            sign=''
+            if len(arrayOfImages)>=3:
+                arrayOfImages[1]
+                sign=solvethesign(arrayOfImages[1])
+            solve = await asyncio.gather(*tasks)
+            solve.append(sign)
+            
+            # print(solve)
+            return solve
 
         return 'Invalid JSON data'
 
