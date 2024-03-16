@@ -230,8 +230,8 @@ async def sendToSolver(base64data):
     url = "https://api.capsolver.com/createTask"
 
     # Define the API key
-    api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
-    # api_key = "CAP-1023B2D2D2"
+    # api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
+    api_key = "CAP-1023B2D2D2"
 
     # Define the JSON data to be sent in the request
     json_data = {
@@ -371,6 +371,7 @@ for i in range(1, 14):
     original_captchas.append(original_captcha)
     
 sign=''
+
 @app.route('/123')
 async def say_hi():
     
@@ -412,7 +413,6 @@ async def say_hi():
     task = asyncio.create_task(sendToSolver(base64Data))
     tasks.append(task)
     # print(task)
-    sign=''
     if len(arrayOfImages)>=3:
         arrayOfImages[1]
         sign=solvethesign(arrayOfImages[1])
@@ -426,6 +426,7 @@ async def say_hi():
 
 image = cv2.imread('./all/12.jpg')
 prefix = 'data:image/jpeg;base64,'
+sign=''
 @app.route('/image' ,methods=['POST'])
 async def recive_theImage():
     try:
@@ -479,7 +480,6 @@ async def recive_theImage():
             task = asyncio.create_task(sendToSolver(base64Data))
             tasks.append(task)
             # print(task)
-            sign=''
             if len(arrayOfImages)>=3:
                 arrayOfImages[1]
                 sign=solvethesign(arrayOfImages[1])
