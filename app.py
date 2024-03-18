@@ -56,7 +56,7 @@ def imagePreProcess(theOriginalImage,image):
     gray_image = cv2.cvtColor(add, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(gray_image, 10, 255, cv2.THRESH_BINARY)
 
-    kernel = create_disk_kernel(2)
+    kernel = create_disk_kernel(1)
     # kernel = disk(2)
     # img = cv2.dilate(binary, kernel, iterations=1)
     img = cv2.erode(binary, kernel, iterations=2)
@@ -147,7 +147,7 @@ def create_color_masked_images(image, colors):
         # Check if the color is black (RGB values are [0, 0, 0])
         if not np.all(color <= 10):
             # Create a mask for pixels close to the target color
-            lower_bound = np.array(color) - 20
+            lower_bound = np.array(color) - 50
             upper_bound = np.array(color) + 20
             mask = cv2.inRange(image, lower_bound, upper_bound)
 
@@ -230,8 +230,8 @@ async def sendToSolver(base64data):
     url = "https://api.capsolver.com/createTask"
 
     # Define the API key
-    # api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
-    api_key = "CAP-1023B2D2D2"
+    api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
+    # api_key = "CAP-1023B2D2D2"        
 
     # Define the JSON data to be sent in the request
     json_data = {
@@ -293,7 +293,12 @@ def sortTheArrayOfTheImage(arr):
                 max_x = x
         unsortedarray.append([image,max_x])
     sorted_contoursAreas = sorted(unsortedarray, key=lambda x: x[1], reverse=False)
+    # print([item[1] for item in sorted_contoursAreas])
+    # [item[1] for item in sorted_contoursAreas]
     # Return all images from the sorted list
+    if sorted_contoursAreas[0][1] == 0:
+         sorted_contoursAreas.pop(0)
+    # print([item[1] for item in sorted_contoursAreas])
     return [item[0] for item in sorted_contoursAreas]
 
 
@@ -347,7 +352,7 @@ def solvethesign(image):
     
     if len(contoursAreas):
         mx=max(contoursAreas)
-        if mx <8000 :
+        if mx <8500 :
             return '-'
         else :
             return 'x'
@@ -375,7 +380,8 @@ sign=''
 @app.route('/123')
 async def say_hi():
     
-    image = cv2.imread('./all/12.jpg')
+    # image = cv2.imread('./all/11.jpg')
+    image = cv2.imread('./45.png')
     modified_captcha =image
     # Find the matching background
     best_match_index, matching_background = find_matching_background(modified_captcha, original_captchas)
@@ -403,6 +409,7 @@ async def say_hi():
     first_item = tribleImages[0]
     last_item = tribleImages[-1]
     combined_img = np.concatenate([first_item, last_item], axis=1)
+    # cv2.imwrite("./combined_img.jpg",combined_img)
 
 
     solve = []
@@ -424,8 +431,8 @@ async def say_hi():
 
     return solve
 
-image = cv2.imread('./all/12.jpg')
-prefix = 'data:image/jpeg;base64,'
+prefix1 = 'data:image/jpeg;base64,'
+prefix2 = 'data:image/jpg;base64,'
 sign=''
 @app.route('/image' ,methods=['POST'])
 async def recive_theImage():
@@ -434,8 +441,10 @@ async def recive_theImage():
 
         if 'base64_image' in json_data:
             base64_image = json_data['base64_image']
-            if base64_image.startswith(prefix):
-                base64_image = base64_image[len(prefix):]
+            if base64_image.startswith(prefix1):
+                base64_image = base64_image[len(prefix1):]
+            if base64_image.startswith(prefix2):
+                base64_image = base64_image[len(prefix2):]
  
             # Decode the base64 image
             image_data = base64.b64decode(base64_image)
@@ -473,7 +482,7 @@ async def recive_theImage():
             combined_img = np.concatenate([first_item, last_item], axis=1)
 
 
-            solve = []
+            solvetasks = []
             tasks = []
             base64Data =image_to_base64(combined_img)
             # print(base64)
@@ -483,8 +492,9 @@ async def recive_theImage():
             if len(arrayOfImages)>=3:
                 arrayOfImages[1]
                 sign=solvethesign(arrayOfImages[1])
-            solve = await asyncio.gather(*tasks)
-            solve.append(sign)
+            solvetasks = await asyncio.gather(*tasks)
+            solvetasks.append(sign)
+            solve ={'solvetasks':solvetasks}
             
             # print(solve)
             return solve
@@ -495,4 +505,4 @@ async def recive_theImage():
         return f'Error: {str(e)}'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000,threaded=True)
