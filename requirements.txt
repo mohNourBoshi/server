@@ -7,3 +7,4 @@ requests
 aiohttp==3.9.3
 Flask[async]==3.0.2
 # flask-profiler==1.8.1
+gevent==24.2.1
