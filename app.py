@@ -8,7 +8,7 @@ from sklearn.cluster import MiniBatchKMeans
 import requests
 import asyncio
 import aiohttp
-from gevent.pywsgi import WSGIServer
+# from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 
