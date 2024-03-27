@@ -34,4 +34,8 @@ x/*
 x/
 arch/
 original/
+build/
+dist/
+build/*
+dist/*
 not solved/

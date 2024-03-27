@@ -8,9 +8,13 @@ from sklearn.cluster import MiniBatchKMeans
 import requests
 import asyncio
 import aiohttp
+from flask_cors import CORS
+
+
 # from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # image_000 = cv2.imread('./original/000.png')
@@ -506,7 +510,7 @@ async def recive_theImage():
         return f'Error: {str(e)}'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050,threaded=True)
+    app.run(host='0.0.0.0', port=5000,threaded=True)
 
     # http_server = WSGIServer(('127.0.0.1', 5000), app, spawn='eventlet')
     # http_server.serve_forever()
