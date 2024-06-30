@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="uploadImage()">Upload Image</button>
+
+    <script>
+        
+        function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+
+            // Check if a file is selected
+            if (!file) {
+                alert('Please select an image.');
+                return;
+            }
+
+            // Read the selected image file
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = function(event) {
+                const base64Image = event.target.result;
+
+                // Construct the payload
+                const payload = {
+                    image: base64Image
+                };
+
+                // Send the payload as JSON via fetch
+                fetch('http://127.0.0.1:5000/image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response from server:', data);
+                    // Handle response from server if needed
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error
+                });
+            };
+        }
+    </script>
+</body>
+</html>
