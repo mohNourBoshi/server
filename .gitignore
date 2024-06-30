@@ -38,4 +38,8 @@ build/
 dist/
 build/*
 dist/*
+cropped/*
+cropped_low_quality/*
+build/*
+build/app/*
 not solved/
