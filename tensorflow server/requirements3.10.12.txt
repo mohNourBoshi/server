@@ -1,0 +1,10 @@
+tensorflow==2.12.0
+Flask
+Gunicorn
+opencv-python
+numpy
+requests
+Flask[async]
+# flask-profiler==1.8.1
+# gevent==24.2.1
+flask_cors
