@@ -234,23 +234,26 @@ def image_to_base64(image):
 async def sendToSolver(base64data):
     # Define the endpoint URL
     # url = "https://api.capsolver.com/createTask"
-    url = "http://127.0.0.1:5655/ "
+    url = "http://127.0.0.1:5655/123"
 
-    # Define the API key
-    api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
+    # # Define the API key
+    # api_key = "CAP-1023B2D2D2200C82A98E9FEDC28BF374"
     # api_key = "CAP-1023B2D2D2"        
 
     # Define the JSON data to be sent in the request
+    # json_data = {
+    #     "clientKey": api_key,
+    #     "task": {
+    #         "type": "ImageToTextTask",
+    #         "module": "common",
+    #         "body": base64data # Base64 encoded image data
+    #     }
+    # }
     json_data = {
-        "clientKey": api_key,
-        "task": {
-            "type": "ImageToTextTask",
-            "module": "common",
-            "body": base64data # Base64 encoded image data
-        }
+        "base64_image": base64data # Base64 encoded image data
+
     }
     headers = {
-        "Host": "api.capsolver.com",
         "Content-Type": "application/json"
     }
     async with aiohttp.ClientSession() as session:
@@ -407,59 +410,59 @@ for i in range(1, 14):
     
 sign=''
 
-@app.route('/123')
-async def say_hi():
+# @app.route('/123')
+# async def say_hi():
     
-    # image = cv2.imread('./all/11.jpg')
-    image = cv2.imread('./45.png')
-    modified_captcha =image
-    # Find the matching background
-    best_match_index, matching_background = find_matching_background(modified_captcha, original_captchas)
-    # print(f"The best matching background image is original{best_match_index+1}.png")
-    # best_match_filename = f'originall/o{best_match_index + 1}.png'
+#     # image = cv2.imread('./all/11.jpg')
+#     image = cv2.imread('./45.png')
+#     modified_captcha =image
+#     # Find the matching background
+#     best_match_index, matching_background = find_matching_background(modified_captcha, original_captchas)
+#     # print(f"The best matching background image is original{best_match_index+1}.png")
+#     # best_match_filename = f'originall/o{best_match_index + 1}.png'
 
-    final=imagePreProcess(matching_background,image)
-    colors = get_top_colors(final, top_colors=5)
-    # print(colors)
-    arrayOfImages=create_color_masked_images(final, colors)
-    arrayOfImages=sortTheArrayOfTheImage(arrayOfImages)
-    if len(arrayOfImages)==0:
-        return"errorr zero charecter"
-    if len(arrayOfImages)==1:
-        return"errorr one charecter"
-    if len(arrayOfImages)==2:
-        sign='-'
+#     final=imagePreProcess(matching_background,image)
+#     colors = get_top_colors(final, top_colors=5)
+#     # print(colors)
+#     arrayOfImages=create_color_masked_images(final, colors)
+#     arrayOfImages=sortTheArrayOfTheImage(arrayOfImages)
+#     if len(arrayOfImages)==0:
+#         return"errorr zero charecter"
+#     if len(arrayOfImages)==1:
+#         return"errorr one charecter"
+#     if len(arrayOfImages)==2:
+#         sign='-'
 
-    tribleImages =[]
-    for i, image in enumerate(arrayOfImages):
-        filename = f'aaaa{i + 1}.jpg'  # Generate filename dynamically
-        tribleImages.append(
-            concatenate_three_images(image, filename)
-        )
-    first_item = tribleImages[0]
-    last_item = tribleImages[-1]
-    combined_img = np.concatenate([first_item, last_item], axis=1)
-    # cv2.imwrite("./combined_img.jpg",combined_img)
+#     tribleImages =[]
+#     for i, image in enumerate(arrayOfImages):
+#         filename = f'aaaa{i + 1}.jpg'  # Generate filename dynamically
+#         tribleImages.append(
+#             concatenate_three_images(image, filename)
+#         )
+#     first_item = tribleImages[0]
+#     last_item = tribleImages[-1]
+#     combined_img = np.concatenate([first_item, last_item], axis=1)
+#     # cv2.imwrite("./combined_img.jpg",combined_img)
 
 
-    solve = []
-    tasks = []
+#     solve = []
+#     tasks = []
 
-    base64Data =image_to_base64(combined_img)
-    # print(base64)
-    task = asyncio.create_task(sendToSolver(base64Data))
-    tasks.append(task)
-    # print(task)
-    if len(arrayOfImages)>=3:
-        arrayOfImages[1]
-        sign=solvethesign(arrayOfImages[1])
+#     base64Data =image_to_base64(combined_img)
+#     # print(base64)
+#     task = asyncio.create_task(sendToSolver(base64Data))
+#     tasks.append(task)
+#     # print(task)
+#     if len(arrayOfImages)>=3:
+#         arrayOfImages[1]
+#         sign=solvethesign(arrayOfImages[1])
 
-    solve = await asyncio.gather(*tasks)
-    solve.append(sign)
+#     solve = await asyncio.gather(*tasks)
+#     solve.append(sign)
     
-    # print(solve)
+#     # print(solve)
 
-    return solve
+#     return solve
 
 prefix1 = 'data:image/jpeg;base64,'
 prefix2 = 'data:image/jpg;base64,'
@@ -481,7 +484,7 @@ async def recive_theImage():
             np_array = np.frombuffer(image_data, np.uint8)
             # cv2.imwrite("loo.jpg",image_data)
             image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-            cv2.imwrite('45.png',image)
+            # cv2.imwrite('45.png',image)
                         
             modified_captcha =image
             # Find the matching background
@@ -505,15 +508,14 @@ async def recive_theImage():
             solvetasks = []
             tasks = []
             for i, image in enumerate(arrayOfImages):
-                # filename = f'aaaa{i + 1}.jpg'  # Generate filename dynamically
                 
-                # # imageProcessed, timed = preprocess_image(image)
-                # tribleImages.append(
-                #     imageProcessed
-                #     # concatenate_three_images(image, filename)
-                # )
-                # task = asyncio.create_task(predict(imageProcessed))
-                # tasks.append(task)
+                # imageProcessed, timed = preprocess_image(image)
+                tribleImages.append(
+                    image
+                )
+                base64Data =image_to_base64(image)
+                task = asyncio.create_task(sendToSolver(base64Data))
+                tasks.append(task)
 
             # first_item = tribleImages[0]
             # second_item = tribleImages[1]
