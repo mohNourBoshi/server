@@ -9,7 +9,4 @@ Flask[async]==3.0.2
 # flask-profiler==1.8.1
 gevent==24.2.1
 flask_cors==4.0.0
-<<<<<<< HEAD
 tensorflow==2.12.0
-=======
->>>>>>> b206d3210d4ca75dbe0ba352ffa8177b681982ab
