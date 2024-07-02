@@ -30,7 +30,7 @@ function uploadImage() {
         // fetch('https://nour.mooo.info/image', {
         // fetch('http://38.242.235.57:5050/image', {
         // fetch('https://5000-cs-941090012827-default.cs-europe-west4-fycr.cloudshell.dev/image', {
-        fetch('http://127.0.0.1:5000/image', {
+        fetch('http://127.0.0.1:5000/imagr', {
             // fetch('https://chaptcha.onrender.com/image', {
             method: 'POST',
             headers: {

@@ -5,6 +5,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
+import asyncio
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -54,7 +55,7 @@ prefix1 = 'data:image/jpeg;base64,'
 prefix2 = 'data:image/jpg;base64,'
 
 @app.route('/123', methods=['POST'])
-def tensorflowSolver():
+async def tensorflowSolver():
     try:
         json_data = request.get_json()
 
@@ -69,23 +70,26 @@ def tensorflowSolver():
             np_array = np.frombuffer(image_data, np.uint8)
             image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
 
-            image, preprocess_time = preprocess_image(image)
-            class_name, confidence_score, prediction_time = predict(image)
+            # Perform image processing asynchronously
+            image, preprocess_time = await asyncio.to_thread(preprocess_image, image)
+            class_name, confidence_score, prediction_time = await asyncio.to_thread(predict, image)
 
             result = {
                 'class_name': class_name,
-                'confidence_score': float(confidence_score),  # Convert to float for JSON serialization
+                'confidence_score': float(confidence_score),
                 'preprocess_time': preprocess_time,
                 'prediction_time': prediction_time
             }
+            print(jsonify(result))
 
             return jsonify(result)
 
         return 'Invalid JSON data'
 
-    except Exception as e:
-        return f'Error: {str(e)}'
 
+    except Exception as e:
+        print(str(e))
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5655, threaded=True)
+    app.run(host='0.0.0.0', port=5655, threaded=False)
