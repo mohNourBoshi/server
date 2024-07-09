@@ -477,7 +477,7 @@ sign=''
 prefix1 = 'data:image/jpeg;base64,'
 prefix2 = 'data:image/jpg;base64,'
 sign=''
-@app.route('/imagr' ,methods=['POST'])
+@app.route('/image' ,methods=['POST'])
 async def recive_theImage():
     try:
         json_data = request.get_json()
