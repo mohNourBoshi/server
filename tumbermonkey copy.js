@@ -97,9 +97,13 @@
                 }
             }
 
-            let a = eval(solve.join(''))
-            if (Number(a) <= 0) {
-                solve = solve[2] + '-' + solve[0]
+            if (['-'].includes(solve[1])) {
+                if (Number(solve[2]) > Number(solve[0])) {
+                    solve = solve[0] + '-' + solve[2]
+                }
+            }
+            if (nums.includes(solve[0]) && nums.includes(solve[1]) && nums.includes(solve[2])) {
+                solve = ['1', '+', '2'];
             }
             if (solve.includes(null)) {
                 solve = ['1', '+', '1'];
