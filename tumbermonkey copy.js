@@ -52,10 +52,12 @@
                     imageres = imageres.solvetasks.map(item => item.class_name.trim());
                     return formatSolve(imageres);
                 } else {
+                    console.log(`Unexpected status code: ${res.status}`);
                     console.error(`Unexpected status code: ${res.status}`);
                     return ['1', '+', '1'];
                 }
             } catch (error) {
+                console.log("Error occurred in sendImage:", error);
                 console.error("Error occurred in sendImage:", error);
                 return ['1', '+', '1'];
             }
@@ -65,24 +67,19 @@
             console.log(`Input solve: ${solve}`);
             if (solve.includes(null)) {
                 console.log("Null values in solve array");
-
-                return ['1', '+', '1'].join('');
+                return ['1', '+', '1'].join('')
             }
 
-            let nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-            console.log(`this is log from format this in put is ${solve}`)
-            if (solve.includes(null)) {
-                console.log("wow it is all null ");
-            } else if (['*', '-', '+'].includes(solve[1])) {
-                console.log("it is ok");
+            const operators = ['*', '-', '+'];
+            const nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            if (operators.includes(solve[1])) {
+                console.log("Middle element is an operator");
             }
-            else if (['*', '-', '+'].includes(solve[2])) {
-                solve = solve[1] + solve[2] + solve[0]
-            }
-            else if (['*', '-', '+'].includes(solve[0])) {
-                solve = solve[2] + solve[0] + solve[1]
-            }
-            else if (nums.includes(solve[0]) & nums.includes(solve[1]) & nums.includes(solve[2])) {
+            else if (operators.includes(solve[2])) {
+                [solve[0], solve[1], solve[2]] = [solve[1], solve[2], solve[0]];
+            } else if (operators.includes(solve[0])) {
+                [solve[0], solve[1], solve[2]] = [solve[2], solve[0], solve[1]];
+            } else if (nums.includes(solve[0]) && nums.includes(solve[1]) && nums.includes(solve[2])) {
                 if (nums.includes(solve[0]) & ['1'].includes(solve[1]) & nums.includes(solve[2])) {
                     solve = solve[0] + '+' + solve[2]
 
@@ -94,14 +91,19 @@
                 else if (['1'].includes(solve[0]) & nums.includes(solve[1]) & nums.includes(solve[2])) {
                     solve = solve[2] + '+' + solve[1]
 
-                } else {
+                }
+                else {
                     solve[1] = '+'
                 }
             }
-            else if (solve[0] == null | solve[1] == null | solve[2] == null) {
-                solve = ['1', '+', '1']
-            }
 
+            let a = eval(solve.join(''))
+            if (Number(a) <= 0) {
+                solve = solve[2] + '-' + solve[0]
+            }
+            if (solve.includes(null)) {
+                solve = ['1', '+', '1'];
+            }
 
             return solve.join('');
         }
@@ -111,11 +113,11 @@
                 const imageSrc = document.querySelector("body > div.swal2-container.swal2-rtl.swal2-center.swal2-backdrop-show > div > img")?.src;
                 if (imageSrc) {
                     console.time('solve image');
-                    const solve = await sendImage(imageSrc);
-                    console.timeEnd('solve image');
-                    console.log(`Solved expression: ${solve}`);
                     const mathInput = document.querySelector("#mathInput");
-                    if (mathInput) {
+                    if (!mathInput.value) {
+                        const solve = await sendImage(imageSrc);
+                        console.timeEnd('solve image');
+                        console.log(`Solved expression: ${solve}`);
                         mathInput.value = solve;
                         document.querySelector("#mathForm button").click();
                     }
@@ -140,25 +142,3 @@
     });
 
 })();
-// real and image
-// 19:52:00
-// 22:04:13
-
-// 12 : 13
-
-// Notification and image
-// 19:17:51
-// 20:02:08
-
-// 00:44 :17
-
-// Notification and real
-// 00:32 :04
-
-
-
-
-
-
-// 20: 10: 33
-// 22: 22: 46
