@@ -298,6 +298,7 @@ def contours_process(contours,image):
         # print("Top colors in the smallest contour:", colors_smallest)
         # smallest_color_images = create_color_masked_images(smallest_character, colors_smallest)
 
+        # u should find the contoures here and 
         if x1<x2:
             color_images.append(largest_color_images[0])
             color_images.append(largest_color_images[1])
@@ -373,8 +374,8 @@ def main(image_path):
     return color_images
 
 # Path to the image
-# image_path = "AAAAAAAAfinal_output_path.jpg"
-# imegsggg=main(image_path)
+image_path = "akhra.jpg"
+imegsggg=main(image_path)
 # cv2.imwrite('single0.jpg',imegsggg[0])
 # cv2.imwrite('single1.jpg',imegsggg[1])
 # cv2.imwrite('single2.jpg',imegsggg[2])

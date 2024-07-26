@@ -5,6 +5,7 @@
 // @description  try to take over the world!
 // @author       You
 // @match        https://www.ecsc.gov.sy/requests/info/*
+// @match        https://ecsc.gov.sy/requests/info/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=gov.sy
 // @grant        none
 // ==/UserScript==
@@ -74,42 +75,44 @@
             const nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
             if (operators.includes(solve[1])) {
                 console.log("Middle element is an operator");
+                solve = `${solve[0]}${solve[1]}${solve[2]}`
+
             }
             else if (operators.includes(solve[2])) {
-                [solve[0], solve[1], solve[2]] = [solve[1], solve[2], solve[0]];
+                solve = `${solve[1]}${solve[2]}${solve[0]}`
             } else if (operators.includes(solve[0])) {
-                [solve[0], solve[1], solve[2]] = [solve[2], solve[0], solve[1]];
+                solve = `${solve[2]}${solve[0]}${solve[1]}`
             } else if (nums.includes(solve[0]) && nums.includes(solve[1]) && nums.includes(solve[2])) {
                 if (nums.includes(solve[0]) & ['1'].includes(solve[1]) & nums.includes(solve[2])) {
-                    solve = solve[0] + '+' + solve[2]
+                    solve = `${solve[0]}+${solve[2]}`
 
                 }
                 else if (nums.includes(solve[0]) & nums.includes(solve[1]) & ['1'].includes(solve[2])) {
-                    solve = solve[1] + '+' + solve[0]
-
+                    solve = `${solve[1]}+${solve[0]}`
                 }
                 else if (['1'].includes(solve[0]) & nums.includes(solve[1]) & nums.includes(solve[2])) {
-                    solve = solve[2] + '+' + solve[1]
-
+                    solve = `${solve[2]}+${solve[1]}`
                 }
                 else {
-                    solve[1] = '+'
+                    solve = `${solve[0]}+${solve[2]}`
                 }
             }
 
             if (['-'].includes(solve[1])) {
                 if (Number(solve[2]) > Number(solve[0])) {
-                    solve = solve[0] + '-' + solve[2]
+                    solve = `${solve[0]}-${solve[2]}`
+
                 }
             }
             if (nums.includes(solve[0]) && nums.includes(solve[1]) && nums.includes(solve[2])) {
-                solve = ['1', '+', '2'];
+
+                solve = '1+2';
             }
             if (solve.includes(null)) {
-                solve = ['1', '+', '1'];
+                solve = '1+1';
             }
 
-            return solve.join('');
+            return solve;
         }
 
         async function addMathEvaluator() {
